@@ -1,0 +1,226 @@
+basePath: /
+definitions:
+  models.CreateSongRequest:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  models.Id:
+    properties:
+      id:
+        type: integer
+    type: object
+  models.Song:
+    properties:
+      group:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+  models.Verse:
+    properties:
+      verse:
+        type: string
+    type: object
+host: localhost:9090
+info:
+  contact: {}
+  description: A simple RESTful API for managing a song library.
+  title: Song Library API
+  version: "1.0"
+paths:
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of songs from the library based on optional filters.
+      parameters:
+      - description: Song title
+        in: query
+        name: song
+        type: string
+      - description: Song group
+        in: query
+        name: group
+        type: string
+      - description: Song release date YYYY.MM.DD
+        in: query
+        name: release_date
+        type: string
+      - description: Text search in song details
+        in: query
+        name: text
+        type: string
+      - description: Link search in song details
+        in: query
+        name: link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved songs
+          schema:
+            items:
+              $ref: '#/definitions/models.Song'
+            type: array
+        "400":
+          description: Invalid request (e.g., invalid filter parameters)
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve songs based on filters
+      tags:
+      - songs
+    post:
+      consumes:
+      - application/json
+      description: Creates a new song in the library. Requires a valid JSON request
+        body containing the song's details.
+      parameters:
+      - description: Song details
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSongRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created song
+          schema:
+            $ref: '#/definitions/models.Id'
+        "400":
+          description: Invalid request (e.g., missing required fields)
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new song
+      tags:
+      - songs
+  /songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a song from the library by its ID.
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid song ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error during deletion
+          schema:
+            type: string
+      summary: Delete a song by ID
+      tags:
+      - songs
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the verses of a song by its ID.
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Start index for verse retrieval (1-based index). Defaults to
+          1.
+        in: query
+        name: start
+        type: integer
+      - description: Number of verses to retrieve. Defaults to 1.
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verses of the song
+          schema:
+            items:
+              $ref: '#/definitions/models.Verse'
+            type: array
+        "400":
+          description: Invalid request parameters or song does not contain requested
+            verses.
+          schema:
+            type: string
+        "404":
+          description: Song not found.
+          schema:
+            type: string
+      summary: Retrieve verses of a song by ID
+      tags:
+      - songs
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing song in the library by its ID. Only the specified
+        fields in the request body will be updated. The request body must contain
+        a valid JSON representation of the `models.Song` struct.
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated song information. Only fields with non-empty values will
+          be updated.
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated song
+          schema:
+            $ref: '#/definitions/models.Song'
+        "400":
+          description: Invalid request (e.g., invalid JSON or missing required fields).
+          schema:
+            type: string
+        "404":
+          description: Song not found.
+          schema:
+            type: string
+        "500":
+          description: Internal server error during the update process.
+          schema:
+            type: string
+      summary: Update a song by ID
+      tags:
+      - songs
+swagger: "2.0"
