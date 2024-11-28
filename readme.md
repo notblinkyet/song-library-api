@@ -1,196 +1,178 @@
+
 # Song Library API
 
-Song Library API — это простое RESTful API для управления музыкальными песнями. API поддерживает операции CRUD (создание, чтение, обновление, удаление) и предоставляет возможность фильтрации песен.
+Простое RESTful API для управления музыкальными песнями.
 
 ## Содержание
 
-- [Описание](#описание)
-- [Структура проекта](#структура-проекта)
-- [Установка и настройка](#установка-и-настройка)
-- [Запуск](#запуск)
-- [API Эндпоинты](#api-эндпоинты)
-  - [GET /songs](#get-songs)
-  - [POST /songs](#post-songs)
-  - [GET /songs/{id}](#get-songsid)
-  - [PATCH /songs/{id}](#patch-songsid)
-  - [DELETE /songs/{id}](#delete-songsid)
-- [Известные проблемы](#известные-проблемы)
-- [Технологии](#технологии)
+1. [Описание](#описание)
+2. [Структура проекта](#структура-проекта)
+3. [Запуск проекта](#запуск-проекта)
+4. [Примеры запросов](#примеры-запросов)
+5. [Заметки](#заметки)
 
 ---
 
 ## Описание
 
-Song Library API позволяет:
-
-- Создавать новые записи о песнях.
-- Просматривать список песен с фильтрацией по различным параметрам.
-- Получать подробную информацию о конкретной песне.
-- Обновлять и удалять записи.
-
-API разработано с использованием Go (Golang), а база данных — PostgreSQL. Также интегрировано стороннее API для получения дополнительной информации о песнях.
+Song Library API предоставляет возможность управлять библиотекой песен, включая создание, чтение, обновление и удаление данных о песнях.
 
 ---
 
 ## Структура проекта
+
+```
 ├── cmd
 │   ├── app
-│   │   └── main.go         # Точка входа для запуска HTTP-сервера
+│   │   └── main.go        # Точка входа, где поднимается HTTP сервер
 │   └── migrator
-│       └── main.go         # Точка входа для запуска миграций
-├── docs                    # Swagger-документация
-│   ├── docs.go
+│       └── main.go        # Точка входа для применения миграций
+├── docs
+│   ├── docs.go            # Сгенерировано утилитой swag
 │   ├── swagger.json
 │   └── swagger.yaml
+├── go.mod                 # Зависимости проекта
+├── go.sum
 ├── internal
-│   ├── config              # Загрузка конфигураций из .env
-│   │   └── config.go
-│   ├── database            # Работа с базой данных
-│   │   ├── database.go     # Интерфейс базы данных
-│   │   ├── migrations      # SQL-миграции
-│   │   └── postgresql      # Реализация работы с PostgreSQL
+│   ├── config
+│   │   └── config.go      # Структура конфигурации и загрузка из .env
+│   ├── database
+│   │   ├── database.go    # Интерфейс базы данных
+│   │   ├── migrations     # SQL файлы миграций
+│   │   └── postgresql     # Реализация работы с PostgreSQL
 │   ├── lib
-│   │   ├── api             # Клиент для стороннего API
-│   │   ├── ParseURL        # Парсинг URL параметров
-│   │   └── sl              # Логирование ошибок
-│   ├── logger              # Конфигурация логгера
-│   ├── models              # Определение моделей данных
-│   ├── services            # Основная бизнес-логика
+│   │   ├── api
+│   │   │   └── api.go     # Клиент для работы с внешним API
+│   │   ├── ParseURL       # Парсинг значений из URL
+│   │   └── sl             # Логгер ошибок
+│   ├── logger
+│   │   └── logger.go      # Настройка логгера
+│   ├── models
+│   │   └── models.go      # Структуры данных для базы и запросов
+│   ├── services
+│   │   └── service.go     # Бизнес-логика
 │   └── transport
-│       └── http            # HTTP-хэндлеры и эндпоинты
+│       └── http           # HTTP хендлеры и эндпоинты
+└── README.md              # Документация
+```
 
 ---
 
-## Установка и настройка
+## Запуск проекта
 
-1. Клонируйте репозиторий:
+1. Установите зависимости:
+   ```bash
+   go mod tidy
+   ```
 
-     git clone https://github.com/notblinkyet/song-library-api.git
-   cd song-library-api
-   
-2. Установите зависимости:
+2. Запустите сервер:
+   ```bash
+   go run cmd/app/main.go
+   ```
 
-   Убедитесь, что Go установлен, и выполните команду:
+3. Примените миграции:
+   ```bash
+   go run cmd/migrator/main.go
+   ```
 
-     go mod tidy
-   
-3. Настройте `.env` файл:
+### Пример `.env` файла
 
-   Создайте .env файл в корневой директории и заполните его:
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=song_library
+DB_USER=postgres
+DB_PASSWORD=12345pass
+MIGRATION_PATH=/home/hobonail/go_projects/song-library-api/internal/database/migrations
+SERVER_PORT=9090
+SERVER_HOST=localhost
+TIMEOUT=5
+IDLE_TIMEOUT=30
+API_ADDR_URL=http://example_api
+```
 
-   DB_HOST=localhost
-    DB_PORT=5432
-    DB_NAME=song_library
-    DB_USER=postgres
-    DB_PASSWORD=12345pass
-    MIGRATION_PATH=/home/hobonail/go_projects/song-library-api/internal/database/migrations
-    SERVER_PORT=9090
-    SERVER_HOST=localhost
-    TIMEOUT=5
-    IDLE_TIMEOUT=30
-    API_ADDR_URL=http://example_api
-   
----
+### Откат миграций
 
-## Запуск
-
-### Запуск HTTP-сервера
-
-Для запуска API выполните команду:
-go run cmd/app/main.go
-
-Сервер будет доступен по адресу: http://localhost:9090.
-
-### Применение миграций
-
-Для применения миграций выполните:
-go run cmd/migrator/main.go
+Для отката миграций используйте параметр `--rollback` с указанием количества миграций для отката:
+```bash
+go run cmd/migrator/main.go --rollback 1
+```
 
 ---
 
-Так же есть параметр --rollback - количество миграций для отката
+## Примеры запросов
 
-## API Эндпоинты
+### Создание песни
 
-### GET /songs
+**POST** `/songs`
 
-Получение списка песен с возможностью фильтрации.
+Пример запроса через `curl`:
 
-#### Пример запроса через curl:
-curl -X 'GET' \
-  'http://localhost:9090/songs?song=Supermassive%20Black%20Hole&group=Muse&release_date=16.07.2006&link=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXsp3_a-PMTw' \
-  -H 'accept: application/json'
-
----
-
-### POST /songs
-
-Создание новой песни.
-
-#### Пример запроса через curl:
-curl -X 'POST' \
-  'http://localhost:9090/songs' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
+```bash
+curl -X 'POST'   'http://localhost:9090/songs'   -H 'accept: application/json'   -H 'Content-Type: application/json'   -d '{
   "group": "Muse",
   "song": "Supermassive Black Hole"
 }'
+```
 
 ---
 
-### GET /songs/{id}
+### Получение песен с фильтром
 
-Получение информации о песне по ID.
+**GET** `/songs`
 
-#### Пример запроса через curl:
-curl -X 'GET' \
-  'http://localhost:9090/songs/13?start=1&count=1' \
-  -H 'accept: application/json'
+Пример запроса через `curl`:
+
+```bash
+curl -X 'GET'   'http://localhost:9090/songs?song=Supermassive%20Black%20Hole&group=Muse'   -H 'accept: application/json'
+```
 
 ---
 
-### PATCH /songs/{id}
+### Получение текста песни
 
-Обновление информации о песне по ID.
+**GET** `/songs/{id}`
 
-#### Пример запроса через curl:
-curl -X 'PATCH' \
-  'http://localhost:9090/songs/11' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
+Пример запроса через `curl`:
+
+```bash
+curl -X 'GET'   'http://localhost:9090/songs/13?start=1&count=1'   -H 'accept: application/json'
+```
+
+---
+
+### Удаление песни
+
+**DELETE** `/songs/{id}`
+
+Пример запроса через `curl`:
+
+```bash
+curl -X 'DELETE'   'http://localhost:9090/songs/10'   -H 'accept: application/json'
+```
+
+---
+
+### Обновление песни
+
+**PATCH** `/songs/{id}`
+
+Пример запроса через `curl`:
+
+```bash
+curl -X 'PATCH'   'http://localhost:9090/songs/11'   -H 'accept: application/json'   -H 'Content-Type: application/json'   -d '{
   "group": "Muse",
   "id": 0,
-  "link": "https://example.com",
-  "releaseDate": "2006-07-16",
-  "song": "Supermassive Black Hole",
-  "text": "Some lyrics"
+  "link": "string",
+  "releaseDate": "string",
+  "song": "string",
+  "text": "string"
 }'
+```
 
 ---
 
-### DELETE /songs/{id}
+## Заметки
 
-Удаление песни по ID.
-
-#### Пример запроса через curl:
-curl -X 'DELETE' \
-  'http://localhost:9090/songs/10' \
-  -H 'accept: application/json'
-
----
-
-## Известные проблемы
-
-- Фильтр по тексту (параметр `text`) на эндпоинте GET `/songs` работает некорректно. Требуется доработка для улучшения функциональности.
-
----
-
-## Технологии
-
-- Golang — язык программирования.
-- PostgreSQL — реляционная база данных.
-- Chi — маршрутизация.
-- Swaggo — генерация Swagger-документации.
-- pgxpool — пул соединений для PostgreSQL.
+- Фильтр по тексту в `GET` запросе `/songs` работает не всегда корректно и требует доработки.
+- Документация Swagger доступна по адресу: [http://localhost:9090/swagger/index.html](http://localhost:9090/swagger/index.html).
