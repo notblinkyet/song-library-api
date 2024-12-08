@@ -1,12 +1,14 @@
 package models
 
+import "time"
+
 type Song struct {
-	ID          int    `json:"id"`
-	Title       string `json:"song"`
-	Group       string `json:"group"`
-	ReleaseDate string `json:"releaseDate"`
-	Text        string `json:"text"`
-	Link        string `json:"link"`
+	ID          int       `json:"id"`
+	Title       string    `json:"song"`
+	Group       string    `json:"group"`
+	ReleaseDate time.Time `json:"releaseDate"`
+	Text        string    `json:"text"`
+	Link        string    `json:"link"`
 }
 
 type CreateSongRequest struct {

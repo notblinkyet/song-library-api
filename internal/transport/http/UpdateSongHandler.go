@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/notblinkyet/song-library-api/internal/lib/sl"
@@ -58,7 +59,7 @@ func (h *Handler) UpdateSong(w http.ResponseWriter, r *http.Request) {
 	if newInfo.Group != "" {
 		song.Group = newInfo.Group
 	}
-	if newInfo.ReleaseDate != "" {
+	if newInfo.ReleaseDate.Equal(time.Time{}) {
 		song.ReleaseDate = newInfo.ReleaseDate
 	}
 	if newInfo.Text != "" {

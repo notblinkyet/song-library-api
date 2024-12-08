@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/notblinkyet/song-library-api/internal/config"
 	"github.com/notblinkyet/song-library-api/internal/database/postgresql"
@@ -15,10 +16,14 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+	t, err := time.Parse("02.01.2006", "16.07.2006")
+	if err != nil {
+		panic(err)
+	}
 	song := models.Song{
 		Title:       "Supermassive Black Hole",
 		Group:       "Muse",
-		ReleaseDate: "16.07.2006",
+		ReleaseDate: t,
 		Text:        "Ooh baby, don't you know I suffer?\nOoh baby, can you hear me moan?\nYou caught me under false pretenses\nHow long before you let me go?\n\nOoh\nYou set my soul alight\nOoh\nYou set my soul alight",
 		Link:        "https://www.youtube.com/watch?v=Xsp3_a-PMTw",
 	}
