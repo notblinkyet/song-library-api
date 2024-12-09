@@ -24,7 +24,7 @@ func (p PostgreSQL) ReadFilteredSongs(filter *models.Filter) ([]models.Song, err
 	}
 
 	var query strings.Builder
-	query.WriteString("SELECT id, title, group_name, release_date, song_text, link FROM songs")
+	query.WriteString("SELECT id, title, group_id, release_date, song_text, link FROM songs")
 
 	args := make([]any, 0)
 	whereClauses := make([]string, 0, 5)
@@ -37,8 +37,14 @@ func (p PostgreSQL) ReadFilteredSongs(filter *models.Filter) ([]models.Song, err
 	}
 
 	if filter.Group != "" {
-		whereClauses = append(whereClauses, fmt.Sprintf("group_name = $%d", varCount))
-		args = append(args, &filter.Group)
+		var group_id int
+		q := `SELECT id FROM groups WHERE name=$1`
+		err := p.pool.QueryRow(ctx, q, &filter.Group).Scan(&group_id)
+		if err != nil {
+			return nil, fmt.Errorf("group not found: %s", filter.Group)
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf("group_id = $%d", varCount))
+		args = append(args, &group_id)
 		varCount++
 	}
 

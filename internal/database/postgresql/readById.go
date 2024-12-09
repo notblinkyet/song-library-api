@@ -15,7 +15,10 @@ func (p PostgreSQL) ReadByID(id int) (*models.Song, error) {
 	defer cancel()
 	var song models.Song
 
-	query := "SELECT id, title, group_name, release_date, song_text, link FROM songs WHERE id=$1"
+	query := `SELECT s.id, s.title, g.name, s.release_date, s.song_text, s.link 
+		FROM s songs JOIN g groups ON g.id = s.group_id
+		WHERE id=$1
+	`
 	err := p.pool.QueryRow(ctx, query, &id).Scan(&song.ID, &song.Title, &song.Group,
 		&song.ReleaseDate, &song.Text, &song.Link)
 
