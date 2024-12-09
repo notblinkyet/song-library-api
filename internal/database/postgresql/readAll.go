@@ -24,7 +24,7 @@ func (p PostgreSQL) ReadFilteredSongs(filter *models.Filter) ([]models.Song, err
 	}
 
 	var query strings.Builder
-	query.WriteString("SELECT id, title, group_id, release_date, song_text, link FROM songs")
+	query.WriteString("SELECT s.id, s.title, g.name, s.release_date, s.song_text, s.link FROM songs s JOIN groups g ON s.group_id=g.id")
 
 	args := make([]any, 0)
 	whereClauses := make([]string, 0, 5)
@@ -48,7 +48,7 @@ func (p PostgreSQL) ReadFilteredSongs(filter *models.Filter) ([]models.Song, err
 		varCount++
 	}
 
-	if filter.ReleaseDate.Equal(time.Time{}) {
+	if !filter.ReleaseDate.Equal(time.Time{}) {
 		whereClauses = append(whereClauses, fmt.Sprintf("release_date = $%d", varCount))
 		args = append(args, &filter.ReleaseDate)
 		varCount++

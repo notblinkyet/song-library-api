@@ -10,14 +10,14 @@ import (
 )
 
 func (p PostgreSQL) ReadByID(id int) (*models.Song, error) {
-	const op = "postgresql.ReadText"
+	const op = "postgresql.ReadByID"
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var song models.Song
 
 	query := `SELECT s.id, s.title, g.name, s.release_date, s.song_text, s.link 
-		FROM s songs JOIN g groups ON g.id = s.group_id
-		WHERE id=$1
+		FROM songs s JOIN groups g ON g.id = s.group_id
+		WHERE s.id=$1
 	`
 	err := p.pool.QueryRow(ctx, query, &id).Scan(&song.ID, &song.Title, &song.Group,
 		&song.ReleaseDate, &song.Text, &song.Link)
