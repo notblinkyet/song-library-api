@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"time"
 
 	parseurl "github.com/notblinkyet/song-library-api/internal/lib/ParseURL"
 	"github.com/notblinkyet/song-library-api/internal/lib/sl"
@@ -32,7 +33,7 @@ func (h *Handler) ReadFilteredSongs(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	filter.Title = parseurl.ParseString(values, "song", "")
 	filter.Group = parseurl.ParseString(values, "group", "")
-	filter.ReleaseDate = parseurl.ParseString(values, "release_date", "")
+	filter.ReleaseDate = parseurl.ParseTime(values, "release_date", time.Time{})
 	filter.Text = parseurl.ParseString(values, "text", "")
 	filter.Link = parseurl.ParseString(values, "link", "")
 	filter.Limit = parseurl.ParseInt(values, "limit", 0)

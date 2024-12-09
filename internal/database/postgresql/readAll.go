@@ -48,7 +48,7 @@ func (p PostgreSQL) ReadFilteredSongs(filter *models.Filter) ([]models.Song, err
 		varCount++
 	}
 
-	if filter.ReleaseDate != "" {
+	if filter.ReleaseDate.Equal(time.Time{}) {
 		whereClauses = append(whereClauses, fmt.Sprintf("release_date = $%d", varCount))
 		args = append(args, &filter.ReleaseDate)
 		varCount++

@@ -3,6 +3,7 @@ package parseurl
 import (
 	"net/url"
 	"strconv"
+	"time"
 )
 
 func ParseString(queryValuer url.Values, key, defaultValue string) string {
@@ -24,4 +25,16 @@ func ParseInt(queryValuer url.Values, key string, defaultValue int) int {
 		return value
 	}
 	return defaultValue
+}
+
+func ParseTime(queryValuer url.Values, key string, defaultValue time.Time) time.Time {
+	value := queryValuer.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+	res, err := time.Parse("02.01.2006", value)
+	if err != nil {
+		return defaultValue
+	}
+	return res
 }

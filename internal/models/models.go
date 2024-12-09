@@ -19,7 +19,7 @@ type CreateSongRequest struct {
 type Filter struct {
 	Title       string
 	Group       string
-	ReleaseDate string
+	ReleaseDate time.Time
 	Text        string
 	Link        string
 	Limit       int
